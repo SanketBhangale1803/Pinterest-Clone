@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const plm = require('passport-local-mongoose');
 
 //Creating a db section for the storage of user details
 mongoose.connect('mongodb://127.0.0.1:27017/user-details');
@@ -12,7 +13,6 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true
   },
   posts: [
     {
@@ -28,13 +28,15 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
-  fullName: {
+  fullname: {
     type: String,
     require: true
   }
 });
 
-// creating a sser model
+// creating a user model
+
+userSchema.plugin(plm);
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;
