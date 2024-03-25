@@ -11,12 +11,20 @@ router.get("/", function (req, res, next) {
   res.render("index");
 });
 
-router.get("/login", function (req, res, next) {
-  res.render("login");
+router.get("/feed", function (req, res, next) {
+  res.render("feed");
 });
 
-router.get("/profile", isLoggedIn ,function (req, res, next) {
-  res.send('profile');
+router.get("/login", function (req, res, next) {
+  res.render("login", {error: req.flash('error')});
+});
+
+router.get("/profile", isLoggedIn , async function (req, res, next) {
+  const user = await userModel.findOne({
+    username: req.session.passport.user//this gets us the username of the user until you are logged in
+  });
+  console.log(user);
+  res.render('profile', {user});
 });
 
 router.post("/register", function (req, res) {
@@ -33,9 +41,9 @@ router.post("/register", function (req, res) {
 
 router.post('/login', passport.authenticate('local',{
   successRedirect: '/profile',
-  falseRedirect: '/'
+  failureRedirect: '/login',
+  failureFlash: true //when you input wrong credentials, then flash messages will be enabled
 }), function(req,res){
-
 });
 
 router.get('/logout', function(req,res){
@@ -47,7 +55,7 @@ router.get('/logout', function(req,res){
 
 function isLoggedIn(req, res, next){
   if(req.isAuthenticated()){ return next() };
-  res.redirect('/');
+  res.redirect('/login');
 }
 
 module.exports = router;
